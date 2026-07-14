@@ -33,31 +33,6 @@ namespace cbg_executor
 class CBGScheduler
 {
 public:
-  struct WaitableWithEventType
-  {
-    rclcpp::Waitable::WeakPtr waitable;
-    int internal_event_type;
-
-    bool expired() const
-    {
-      return waitable.expired();
-    }
-  };
-
-  struct CallbackEventType
-  {
-    explicit CallbackEventType(std::function<void()> callback)
-    : callback(std::move(callback))
-    {
-    }
-
-    std::function<void()> callback;
-
-    bool expired() const
-    {
-      return false;
-    }
-  };
 
   struct CallbackGroupHandle
   {
@@ -82,8 +57,9 @@ public:
       const rclcpp::ServiceBase::WeakPtr & entity) = 0;
     virtual std::function<void(size_t,
       int)> get_ready_callback_for_entity(const rclcpp::Waitable::WeakPtr & entity) = 0;
+    // CHANGED: Now correctly points to the struct inside ReadyEntity
     virtual std::function<void(size_t)> get_ready_callback_for_entity(
-      const CallbackEventType & entity) = 0;
+      const ReadyEntity::CallbackEventType & entity) = 0;
 
       /**
        * Marks the last removed ready entity as executed.
